@@ -4,14 +4,15 @@ import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import simpledialog as sd
 from tkinter import Scale
+from tkinter import ttk
 import time
 
 class Game:
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Conway's Game of Life")
-        self.window.geometry("500x625")
-        self.window.maxsize(500, 625)
+        self.window.geometry("500x640")
+        self.window.maxsize(500, 640)
         #self.window.configure(bg="gray")
         self.window.configure(bg="#00559F")
 
@@ -59,12 +60,29 @@ class Game:
         self.old_world = self.world
 
         self.running = True
+        
+        
+        # bookkeeping values
+        self.population = 0
+        self.generation = 0
 
     def main(self):
         self.default_startup()
 
         self.draw_grid(self.canvas)
         self.draw_cells(self.canvas, self.world)
+        
+        
+        info_frame = tk.Frame(master=self.window, relief="ridge", borderwidth=2)
+        self.gen_label = tk.Label(master=info_frame, text="Generation: {}".format(self.generation))
+        self.gen_label.grid(row=0, column=0)
+        
+        sep = ttk.Separator(master=info_frame, orient="vertical")
+        sep.grid(row=0, column=1)
+        
+        self.pop_label = tk.Label(master=info_frame, text="Population: {}".format(self.population))
+        self.pop_label.grid(row=0, column=2)
+        info_frame.pack()
 
         button_frame = tk.Frame(master=self.window, relief="ridge", bg="gray", borderwidth=5)
         start_btn = tk.Button(master=button_frame, text="Start", fg="black", command=self.run, width=7)
@@ -170,6 +188,14 @@ class Game:
                 lst_copy[i][j] = lst[i][j]
         return lst_copy
     
+    def count_pop(self):
+        population = 0
+        for i in range(len(self.world)):
+            for j in range(len(self.world)):
+                if self.world[i][j] == 1:
+                    population += 1
+        return population
+    
     
     def default_startup(self):
         # floater
@@ -224,6 +250,12 @@ class Game:
         self.draw_grid(self.canvas)
         self.calc_gen()
         self.draw_cells(self.canvas, self.world)
+        self.generation += 1
+        self.gen_label.configure(text="Generation: {}".format(self.generation))
+        self.population = self.count_pop()
+        self.pop_label.configure(text="Population: {}".format(self.population))
+        
+        
 
     def run(self):
         self.running = True
@@ -239,6 +271,12 @@ class Game:
         self.world = [[0 for i in range(0, self.grid_size, 10)] for j in range(0, self.grid_size, 10)]
 
         self.draw_cells(self.canvas, self.world)
+        
+        self.generation = 0
+        self.gen_label.configure(text="Generation: {}".format(self.generation))
+        
+        self.population = 0
+        self.pop_label.configure(text="Population: {}".format(self.population))
 
     def parse_world_from_file(self, filename):
         new_world = [[0 for i in range(0, self.grid_size, 10)] for j in range(0, self.grid_size, 10)]
@@ -268,18 +306,27 @@ class Game:
 
     ## File menu methods
     def import_world(self):
-        file_name = fd.askopenfilename()
-        self.parse_world_from_file(file_name)
+        try:
+            file_name = fd.askopenfilename()
+            self.parse_world_from_file(file_name)
+        except IOError:
+            print("IOError: File could not be opened!")
         
 
     def export_world(self):
         self.stop()
-        file_name = fd.asksaveasfilename()
         
-        with open(file_name, "w") as out_file:
-            for i in range(len(self.world)):
-                for j in range(len(self.world)):
-                    out_file.write("{},{},{}\n".format(i,j,self.world[i][j]))
+        try:
+            file_name = fd.asksaveasfilename()
+        
+            with open(file_name, "w") as out_file:
+                for i in range(len(self.world)):
+                    for j in range(len(self.world)):
+                        out_file.write("{},{},{}\n".format(i,j,self.world[i][j]))
+        except:
+            print("Error: Enter a valid file name")
+            
+            
 
     def exit(self):
         self.stop()
