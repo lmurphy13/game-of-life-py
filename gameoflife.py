@@ -3,14 +3,15 @@
 import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import simpledialog as sd
+from tkinter import Scale
 import time
 
 class Game:
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Conway's Game of Life")
-        self.window.geometry("500x600")
-        self.window.maxsize(500, 600)
+        self.window.geometry("500x625")
+        self.window.maxsize(500, 625)
         #self.window.configure(bg="gray")
         self.window.configure(bg="#00559F")
 
@@ -48,8 +49,6 @@ class Game:
         self.bg_menu.add_command(label="Red")
         self.bg_menu.add_command(label="Green")
         
-        
-
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
         self.menu_bar.add_cascade(label="Options", menu=self.options_menu)
 
@@ -80,8 +79,20 @@ class Game:
         reset_btn = tk.Button(master=button_frame, text="Reset", fg="black", command=self.reset, width=7)
         reset_btn.grid(row=1, column=1)
 
-        self.canvas_frame.pack(pady=15)
-        button_frame.pack(pady=15)
+        self.canvas_frame.pack(pady=10)
+        button_frame.pack(pady=10)
+        
+        
+        slider_frame = tk.Frame(master=self.window)
+        speed_label = tk.Label(master=slider_frame, text="Speed")
+        speed_label.grid(row=0, column=0)
+        
+        self.speed_slider = tk.Scale(master=slider_frame, from_=0, to=1, orient=tk.HORIZONTAL, resolution=0.01)
+        self.speed_slider.set(0.5)
+        self.speed_slider.grid(row=0, column=1)
+        
+        slider_frame.pack(pady=10)
+        
         self.window.config(menu=self.menu_bar)
         
         self.canvas.bind('<Button-1>', self.click_cell)
@@ -219,7 +230,7 @@ class Game:
         while self.running:
             self.step()
             self.window.update()
-            time.sleep(0.05)
+            time.sleep(1 - self.speed_slider.get())
         
     def stop(self):
         self.running = False
