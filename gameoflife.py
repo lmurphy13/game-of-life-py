@@ -11,7 +11,8 @@ class Game:
         self.window.title("Conway's Game of Life")
         self.window.geometry("500x600")
         self.window.maxsize(500, 600)
-        self.window.configure(bg="gray")
+        #self.window.configure(bg="gray")
+        self.window.configure(bg="#00559F")
 
         self.canvas_frame = tk.Frame(master=self.window, relief="sunken", borderwidth=5)
         self.canvas = tk.Canvas(master=self.canvas_frame, width=400, height=400)
@@ -42,16 +43,16 @@ class Game:
         self.draw_cells(self.canvas, self.world)
 
         button_frame = tk.Frame(master=self.window, relief="ridge", bg="gray", borderwidth=5)
-        start_btn = tk.Button(master=button_frame, text="Start", fg="black", command=self.run)
+        start_btn = tk.Button(master=button_frame, text="Start", fg="black", command=self.run, width=7)
         start_btn.grid(row=0, column=0)
 
-        stop_btn = tk.Button(master=button_frame, text="Stop", fg="black", command=self.stop)
+        stop_btn = tk.Button(master=button_frame, text="Stop", fg="black", command=self.stop, width=7)
         stop_btn.grid(row=0, column=1)
 
-        step_btn = tk.Button(master=button_frame, text="Step", fg="black", command=self.step)
+        step_btn = tk.Button(master=button_frame, text="Step", fg="black", command=self.step, width=7)
         step_btn.grid(row=1, column=0)
 
-        reset_btn = tk.Button(master=button_frame, text="Reset", fg="black", command=self.reset)
+        reset_btn = tk.Button(master=button_frame, text="Reset", fg="black", command=self.reset, width=7)
         reset_btn.grid(row=1, column=1)
 
         self.canvas_frame.pack(pady=15)
@@ -225,6 +226,7 @@ class Game:
                     out_file.write("{},{},{}\n".format(i,j,self.world[i][j]))
 
     def exit(self):
+        self.stop()
         exit(0)     
 
 game = Game()
