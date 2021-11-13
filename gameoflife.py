@@ -25,8 +25,33 @@ class Game:
         self.file_menu.add_command(label="Export World", command=self.export_world)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.exit)
+        
+        self.options_menu = tk.Menu(master=self.menu_bar, tearoff=0)
+        
+        
+        self.bg_menu = tk.Menu(master=self.options_menu, tearoff=0)
+        self.bg_menu.add_command(label="Blue")
+        self.bg_menu.add_command(label="Red")
+        self.bg_menu.add_command(label="Green")
+        
+        self.cell_menu = tk.Menu(master=self.options_menu, tearoff=0)
+        self.cell_menu.add_command(label="Blue")
+        self.cell_menu.add_command(label="Red")
+        self.cell_menu.add_command(label="Green")
+        
+        
+        self.options_menu.add_cascade(label="Background Color", menu=self.bg_menu)
+        self.options_menu.add_cascade(label="Cell Color", menu=self.cell_menu)
+        
+        self.bg_menu = tk.Menu(master=self.options_menu, tearoff=0)
+        self.bg_menu.add_command(label="Blue")
+        self.bg_menu.add_command(label="Red")
+        self.bg_menu.add_command(label="Green")
+        
+        
 
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
+        self.menu_bar.add_cascade(label="Options", menu=self.options_menu)
 
         self.grid_size = int(self.canvas.config()["width"][4])
         self.world = [[0 for i in range(0, self.grid_size, 10)] for j in range(0, self.grid_size, 10)]
@@ -37,7 +62,7 @@ class Game:
         self.running = True
 
     def main(self):
-        self.reset()
+        self.default_startup()
 
         self.draw_grid(self.canvas)
         self.draw_cells(self.canvas, self.world)
@@ -58,7 +83,25 @@ class Game:
         self.canvas_frame.pack(pady=15)
         button_frame.pack(pady=15)
         self.window.config(menu=self.menu_bar)
+        
+        self.canvas.bind('<Button-1>', self.click_cell)
+        
         self.window.mainloop()
+        
+    def click_cell(self, event):
+        x, y = event.x, event.y
+        
+        # resolve x, y to a cell
+        grid_x = x // 10
+        grid_y = y // 10
+        
+        state = self.world[grid_x][grid_y]
+        if state == 0:
+            self.world[grid_x][grid_y] = 1
+        else:
+            self.world[grid_x][grid_y] = 0
+            
+        self.draw_cells(self.canvas, self.world)
 
     def draw_grid(self, canvas):
         config = canvas.config()
@@ -115,28 +158,9 @@ class Game:
             for j in range(len(lst[i])):
                 lst_copy[i][j] = lst[i][j]
         return lst_copy
-
-    ## Button callbacks
     
-    def step(self):
-        self.canvas.delete("all")
-        self.draw_grid(self.canvas)
-        self.calc_gen()
-        self.draw_cells(self.canvas, self.world)
-
-    def run(self):
-        self.running = True
-        while self.running:
-            self.step()
-            self.window.update()
-            time.sleep(0.05)
-        
-    def stop(self):
-        self.running = False
-
-    def reset(self):
-        self.world = [[0 for i in range(0, self.grid_size, 10)] for j in range(0, self.grid_size, 10)]
-
+    
+    def default_startup(self):
         # floater
         self.world[11][15] = 1
         self.world[12][16] = 1
@@ -181,6 +205,27 @@ class Game:
         self.world[19][7] = 1
         self.world[19][8] = 1
         self.world[19][9] = 1
+
+    ## Button callbacks
+    
+    def step(self):
+        self.canvas.delete("all")
+        self.draw_grid(self.canvas)
+        self.calc_gen()
+        self.draw_cells(self.canvas, self.world)
+
+    def run(self):
+        self.running = True
+        while self.running:
+            self.step()
+            self.window.update()
+            time.sleep(0.05)
+        
+    def stop(self):
+        self.running = False
+
+    def reset(self):
+        self.world = [[0 for i in range(0, self.grid_size, 10)] for j in range(0, self.grid_size, 10)]
 
         self.draw_cells(self.canvas, self.world)
 
