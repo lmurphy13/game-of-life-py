@@ -20,39 +20,6 @@ class Game:
         self.canvas = tk.Canvas(master=self.canvas_frame, width=400, height=400)
         self.canvas.pack()
 
-        self.menu_bar = tk.Menu(master=self.window)
-
-        self.file_menu = tk.Menu(master=self.menu_bar, tearoff=0)
-        self.file_menu.add_command(label="Import World", command=self.import_world)
-        self.file_menu.add_command(label="Export World", command=self.export_world)
-        self.file_menu.add_separator()
-        self.file_menu.add_command(label="Exit", command=self.exit)
-        
-        self.options_menu = tk.Menu(master=self.menu_bar, tearoff=0)
-        
-        
-        self.bg_menu = tk.Menu(master=self.options_menu, tearoff=0)
-        self.bg_menu.add_command(label="Blue")
-        self.bg_menu.add_command(label="Red")
-        self.bg_menu.add_command(label="Green")
-        
-        self.cell_menu = tk.Menu(master=self.options_menu, tearoff=0)
-        self.cell_menu.add_command(label="Blue")
-        self.cell_menu.add_command(label="Red")
-        self.cell_menu.add_command(label="Green")
-        
-        
-        self.options_menu.add_cascade(label="Background Color", menu=self.bg_menu)
-        self.options_menu.add_cascade(label="Cell Color", menu=self.cell_menu)
-        
-        self.bg_menu = tk.Menu(master=self.options_menu, tearoff=0)
-        self.bg_menu.add_command(label="Blue")
-        self.bg_menu.add_command(label="Red")
-        self.bg_menu.add_command(label="Green")
-        
-        self.menu_bar.add_cascade(label="File", menu=self.file_menu)
-        self.menu_bar.add_cascade(label="Options", menu=self.options_menu)
-
         self.grid_size = int(self.canvas.config()["width"][4])
         self.world = [[0 for i in range(0, self.grid_size, 10)] for j in range(0, self.grid_size, 10)]
 
@@ -60,7 +27,6 @@ class Game:
         self.old_world = self.world
 
         self.running = True
-        
         
         # bookkeeping values
         self.population = 0
@@ -111,11 +77,40 @@ class Game:
         
         slider_frame.pack(pady=10)
         
-        self.window.config(menu=self.menu_bar)
+        menu_bar = tk.Menu(master=self.window)
+
+        file_menu = tk.Menu(master=menu_bar, tearoff=0)
+        file_menu.add_command(label="Import World", command=self.import_world)
+        file_menu.add_command(label="Export World", command=self.export_world)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self.exit)
+        
+        options_menu = tk.Menu(master=menu_bar, tearoff=0)
+        
+        bg_menu = tk.Menu(master=options_menu, tearoff=0)
+        bg_menu.add_command(label="Blue", command= lambda: self.set_window_color("blue"))
+        bg_menu.add_command(label="Red", command= lambda: self.set_window_color("red"))
+        bg_menu.add_command(label="Green", command= lambda: self.set_window_color("green"))
+        
+        options_menu.add_cascade(label="Background Color", menu=bg_menu)
+        
+        menu_bar.add_cascade(label="File", menu=file_menu)
+        menu_bar.add_cascade(label="Options", menu=options_menu)
+        
+        self.window.config(menu=menu_bar)
         
         self.canvas.bind('<Button-1>', self.click_cell)
         
         self.window.mainloop()
+        
+        
+    def set_window_color(self, color):
+        if color == "blue":
+            self.window.config(bg="#00559F")
+        elif color == "red":
+            self.window.config(bg="#EB2323")
+        elif color == "green":
+            self.window.config(bg="#038F0C")
         
     def click_cell(self, event):
         x, y = event.x, event.y
@@ -311,6 +306,9 @@ class Game:
             self.parse_world_from_file(file_name)
         except IOError:
             print("IOError: File could not be opened!")
+            
+        except:
+            print("Error: File could not be opened!")
         
 
     def export_world(self):
